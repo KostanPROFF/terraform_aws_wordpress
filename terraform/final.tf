@@ -1,5 +1,5 @@
 provider "aws" {
-  region                  = "eu-west-2"
+  region                  = "eu-central-1"
   shared_credentials_file = "./aws/credentials"
 }
 
@@ -35,7 +35,7 @@ resource "aws_vpc" "myvpc" {
   }
 }
 
-resource "aws_subnet" "eu-west-2a" {
+resource "aws_subnet" "eu-central-1a" {
   vpc_id            = aws_vpc.myvpc.id
   cidr_block        = "10.0.1.0/24"
   availability_zone = "eu-west-2a"
@@ -45,7 +45,7 @@ resource "aws_subnet" "eu-west-2a" {
   }
 }
 
-resource "aws_subnet" "eu-west-2b" {
+resource "aws_subnet" "eu-central-1b" {
   vpc_id            = aws_vpc.myvpc.id
   cidr_block        = "10.0.2.0/24"
   availability_zone = "eu-west-2b"
@@ -71,12 +71,12 @@ resource "aws_route" "route_to_ig" {
   depends_on             = [aws_internet_gateway.mygw, aws_vpc.myvpc]
 }
 
-resource "aws_route_table_association" "eu-west-2a" {
+resource "aws_route_table_association" "eu-central-1a" {
   subnet_id      = aws_subnet.eu-west-2a.id
   route_table_id = aws_vpc.myvpc.main_route_table_id
 }
 
-resource "aws_route_table_association" "eu-west-2b" {
+resource "aws_route_table_association" "eu-central-1b" {
   subnet_id      = aws_subnet.eu-west-2b.id
   route_table_id = aws_vpc.myvpc.main_route_table_id
 }
@@ -88,14 +88,14 @@ resource "aws_efs_file_system" "myefs" {
   }
 }
 
-resource "aws_efs_mount_target" "eu-west-2a" {
+resource "aws_efs_mount_target" "eu-central-1a" {
   file_system_id  = aws_efs_file_system.myefs.id
   subnet_id       = aws_subnet.eu-west-2a.id
   security_groups = [aws_security_group.SG_for_EFS.id]
   depends_on      = [aws_efs_file_system.myefs, aws_security_group.SG_for_EFS]
 }
 
-resource "aws_efs_mount_target" "eu-west-2b" {
+resource "aws_efs_mount_target" "eu-central-1b" {
   file_system_id  = aws_efs_file_system.myefs.id
   subnet_id       = aws_subnet.eu-west-2b.id
   security_groups = [aws_security_group.SG_for_EFS.id]
