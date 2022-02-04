@@ -38,20 +38,20 @@ resource "aws_vpc" "myvpc" {
 resource "aws_subnet" "eu-central-1a" {
   vpc_id            = aws_vpc.myvpc.id
   cidr_block        = "10.0.1.0/24"
-  availability_zone = "eu-west-2a"
+  availability_zone = "eu-central-1a"
 
   tags = {
-    Name = "eu-west-2a"
+    Name = "eu-central-1a"
   }
 }
 
 resource "aws_subnet" "eu-central-1b" {
   vpc_id            = aws_vpc.myvpc.id
   cidr_block        = "10.0.2.0/24"
-  availability_zone = "eu-west-2b"
+  availability_zone = "eu-central-1b"
 
   tags = {
-    Name = "eu-west-2b"
+    Name = "eu-central-1b"
   }
 }
 
@@ -72,12 +72,12 @@ resource "aws_route" "route_to_ig" {
 }
 
 resource "aws_route_table_association" "eu-central-1a" {
-  subnet_id      = aws_subnet.eu-west-2a.id
+  subnet_id      = aws_subnet.eu-central-1a.id
   route_table_id = aws_vpc.myvpc.main_route_table_id
 }
 
 resource "aws_route_table_association" "eu-central-1b" {
-  subnet_id      = aws_subnet.eu-west-2b.id
+  subnet_id      = aws_subnet.eu-central-1b.id
   route_table_id = aws_vpc.myvpc.main_route_table_id
 }
 
@@ -90,14 +90,14 @@ resource "aws_efs_file_system" "myefs" {
 
 resource "aws_efs_mount_target" "eu-central-1a" {
   file_system_id  = aws_efs_file_system.myefs.id
-  subnet_id       = aws_subnet.eu-west-2a.id
+  subnet_id       = aws_subnet.eu-central-1a.id
   security_groups = [aws_security_group.SG_for_EFS.id]
   depends_on      = [aws_efs_file_system.myefs, aws_security_group.SG_for_EFS]
 }
 
 resource "aws_efs_mount_target" "eu-central-1b" {
   file_system_id  = aws_efs_file_system.myefs.id
-  subnet_id       = aws_subnet.eu-west-2b.id
+  subnet_id       = aws_subnet.eu-central-1b.id
   security_groups = [aws_security_group.SG_for_EFS.id]
   depends_on      = [aws_efs_file_system.myefs, aws_security_group.SG_for_EFS]
 }
@@ -167,7 +167,7 @@ resource "aws_security_group" "SG_for_EFS" {
   vpc_id      = aws_vpc.myvpc.id
 
   ingress {
-    description     = "NFS from EC2"
+    description     = "EFS from EC2"
     from_port       = 2049
     to_port         = 2049
     protocol        = "tcp"
@@ -207,7 +207,7 @@ resource "aws_security_group" "SG_for_ELB" {
 
 resource "aws_db_subnet_group" "default" {
   name       = "main"
-  subnet_ids = [aws_subnet.eu-west-2a.id, aws_subnet.eu-west-2b.id]
+  subnet_ids = [aws_subnet.eu-central-1a.id, aws_subnet.eu-central-1b.id]
 }
 
 resource "aws_db_instance" "mysql" {
@@ -258,18 +258,18 @@ resource "aws_autoscaling_group" "my_asg" {
   health_check_type         = "ELB"
   desired_capacity          = 2
   launch_configuration      = aws_launch_configuration.my_conf.name
-  vpc_zone_identifier       = [aws_subnet.eu-west-2a.id, aws_subnet.eu-west-2b.id]
+  vpc_zone_identifier       = [aws_subnet.eu-central-1a.id, aws_subnet.eu-central-1b.id]
   load_balancers            = [aws_elb.my_elb.name]
   lifecycle {
     create_before_destroy = true
   }
-  depends_on = [aws_elb.my_elb, aws_launch_configuration.my_conf, aws_efs_mount_target.eu-west-2a, aws_efs_mount_target.eu-west-2b]
+  depends_on = [aws_elb.my_elb, aws_launch_configuration.my_conf, aws_efs_mount_target.eu-central-1a, aws_efs_mount_target.eu-central-1b]
 }
 
 resource "aws_elb" "my_elb" {
   name            = "My-ELB"
   security_groups = [aws_security_group.SG_for_ELB.id]
-  subnets         = [aws_subnet.eu-west-2a.id, aws_subnet.eu-west-2b.id]
+  subnets         = [aws_subnet.eu-central-1a.id, aws_subnet.eu-central-1b.id]
 
   listener {
     instance_port     = 80
