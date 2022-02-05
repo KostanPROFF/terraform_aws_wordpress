@@ -13,7 +13,7 @@ data "template_file" "user_data" {
 }
 
 resource "aws_instance" "for_ami" {
-  ami           = "ami-0d26eb3972b7f8c96"
+  ami           = "ami-04c921614424b07cd"
   instance_type = "t2.micro"
   user_data = data.template_file.user_data.rendered
   tags = {
@@ -235,7 +235,7 @@ resource "aws_launch_configuration" "my_conf" {
   name_prefix                 = "My Launch Config with WP"
   image_id                    = aws_ami_from_instance.apache_php.id
   instance_type               = "t2.micro"
-  key_name                    = "Test_key"
+  key_name                    = "kostanproff.com"
   security_groups             = [aws_security_group.SG_for_EC2.id]
   associate_public_ip_address = true
   root_block_device {
