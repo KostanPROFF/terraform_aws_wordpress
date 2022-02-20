@@ -1,5 +1,5 @@
 # AWS terraform file and ansible role for creating the following architecture:  
-<img src="./Architecture.PNG" width="350" height="446">
+<img src="./Architecture.PNG" width="685" height="720">
 
 **Note:** You have to precreate an SSH-key in your AWS account with name "Test_key" or change the name of key in the **key_name** parameter of 'resource "aws_launch_configuration" "my_conf"'.  
 
